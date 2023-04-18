@@ -67,7 +67,17 @@ const typeConverter = (type: string, propName: string) => {
         let typeString = arrayTypeMatch[1].trim();
 
         if (typeString.includes("enum (")) return createAndGetEnum(typeString, propName);
-        return `${getKnownType(typeString).replace(" ", "")}[]`;
+        return `${getKnownType(typeString)}[]`;
+    }
+
+    const mapTypeRegex = /<(.+)> map/;
+    const mapTypeMatch = type.match(mapTypeRegex);
+    if (mapTypeMatch && mapTypeMatch.length > 0) {
+        let typeString = mapTypeMatch[1].trim();
+        let [type1, type2] = typeString.split(",").map(s => s.trim())
+
+        if (type2.includes("enum (")) type2 = createAndGetEnum(typeString, propName);
+        return `Dictionary<${getKnownType(type1)}, ${getKnownType(type2)}>`;
     }
 
     if (type.includes("enum (")) return createAndGetEnum(type, propName);
@@ -91,7 +101,7 @@ const getKnownType = (type: string) => {
         case "boolean":
             return "bool";
         default:
-            return type;
+            return type.replace(/\s/g, "");
     }
 };
 
