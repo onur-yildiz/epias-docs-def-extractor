@@ -8,7 +8,7 @@ const OUTPUT_DIRECTORY_PATH = "outputs";
 const OUTPUT_FILE_PATH = `${OUTPUT_DIRECTORY_PATH}/output_${new Date().getTime()}.cs`;
 
 const app = async () => {
-    if(!fs.existsSync(OUTPUT_DIRECTORY_PATH)) fs.mkdirSync(OUTPUT_DIRECTORY_PATH);
+    if (!fs.existsSync(OUTPUT_DIRECTORY_PATH)) fs.mkdirSync(OUTPUT_DIRECTORY_PATH);
 
     const response = await fetch(TARGET_URL);
     console.log("FETCHED URL");
@@ -45,12 +45,14 @@ const app = async () => {
 
         const className = definition.querySelector("h3").textContent.split(" ").at(-1).trim();
         const classCode = `public ${OBJECT_TYPE} ${className} {\n${properties
-            .map(
-                (prop) =>
-                    `  public ${prop.type}${prop.isOptional && prop.type !== "string" ? "?" : ""} ${
-                        prop.name
-                    } { get; set; } // ${prop.description}`
-            )
+            .map((prop) => {
+                let propDef = `  public ${prop.type}${prop.isOptional && prop.type !== "string" ? "?" : ""} ${
+                    prop.name
+                } { get; set; }`;
+
+                if (prop.description && prop.description.length > 0) return propDef + ` // ${prop.description}`;
+                return propDef;
+            })
             .join("\n")}\n}\n\n`;
 
         // console.log(classCode);
@@ -62,7 +64,7 @@ const typeConverter = (type: string, propName: string) => {
     const arrayTypeRegex = /<(.+)> array/;
     const arrayTypeMatch = type.match(arrayTypeRegex);
     if (arrayTypeMatch && arrayTypeMatch.length > 0) {
-        let typeString = arrayTypeMatch[1];
+        let typeString = arrayTypeMatch[1].trim();
 
         if (typeString.includes("enum (")) return createAndGetEnum(typeString, propName);
         return `${getKnownType(typeString).replace(" ", "")}[]`;
@@ -76,10 +78,13 @@ const typeConverter = (type: string, propName: string) => {
 const getKnownType = (type: string) => {
     switch (type) {
         case "string (date-time)":
+        case "string(date-time)":
             return "DateTime";
         case "integer (int64)":
+        case "integer(int64)":
             return "long";
         case "integer (int32)":
+        case "integer(int32)":
             return "int";
         case "number":
             return "decimal";
