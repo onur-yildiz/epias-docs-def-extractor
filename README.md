@@ -6,6 +6,6 @@ Extracts definitions from EPIAS Docs as C# classes
 
 ## Parameters (in `index.ts`)\
 `DEFAULT_NAME_CASE_METHOD` - __toCamelCase__, __toPascalCase__, __toSnakeCase__\
-`INCLUDE_DESCRIPTIONS` - include desc as comments (To be doc summary in the future hopefully)\
+`INCLUDE_DESCRIPTIONS` - boolean. include desc as comments (To be doc summary in the future hopefully)\
 `OUTPUT_DIRECTORY_PATH` - output path\
 `OBJECT_BLUEPRINT` - class, struct etc.
