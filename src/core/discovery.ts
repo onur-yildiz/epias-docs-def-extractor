@@ -22,46 +22,55 @@ const getPageTitle = (document: any, fallbackUrl: string): string => {
     );
 };
 
-export const discoverDocumentationPages = async (seedUrls: string[]): Promise<DiscoveredDocPage[]> => {
-    const discoveredPages = new Map<string, DiscoveredDocPage>();
+const discoverFromSeedUrl = async (seedUrl: string): Promise<DiscoveredDocPage[]> => {
+    const response = await fetchWithTimeout(seedUrl);
+    if (!response.ok) return [];
 
-    for (const seedUrl of seedUrls) {
-        let response;
+    const htmlString = await response.text();
+    const dom = new JSDOM(htmlString);
+    const document = dom.window.document;
 
-        try {
-            response = await fetchWithTimeout(seedUrl);
-        } catch {
+    const pages = new Map<string, DiscoveredDocPage>();
+
+    pages.set(seedUrl, {
+        title: getPageTitle(document, seedUrl),
+        url: seedUrl,
+    });
+
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"));
+
+    for (const link of links) {
+        const normalizedUrl = normalizeUrl(link.href, seedUrl);
+        if (!normalizedUrl) continue;
+
+        if (!normalizedUrl.includes("/technical/") || !normalizedUrl.endsWith("index.html")) {
             continue;
         }
 
-        if (!response.ok) continue;
+        if (pages.has(normalizedUrl)) continue;
 
-        const htmlString = await response.text();
-        const dom = new JSDOM(htmlString);
-        const document = dom.window.document;
-
-        discoveredPages.set(seedUrl, {
-            title: getPageTitle(document, seedUrl),
-            url: seedUrl,
+        const linkTitle = link.textContent?.trim() || normalizedUrl;
+        pages.set(normalizedUrl, {
+            title: linkTitle,
+            url: normalizedUrl,
         });
+    }
 
-        const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"));
+    return [...pages.values()];
+};
 
-        for (const link of links) {
-            const normalizedUrl = normalizeUrl(link.href, seedUrl);
-            if (!normalizedUrl) continue;
+export const discoverDocumentationPages = async (seedUrls: string[]): Promise<DiscoveredDocPage[]> => {
+    const settledResults = await Promise.allSettled(seedUrls.map((seedUrl) => discoverFromSeedUrl(seedUrl)));
 
-            if (!normalizedUrl.includes("/technical/") || !normalizedUrl.endsWith("index.html")) {
-                continue;
+    const discoveredPages = new Map<string, DiscoveredDocPage>();
+
+    for (const result of settledResults) {
+        if (result.status !== "fulfilled") continue;
+
+        for (const page of result.value) {
+            if (!discoveredPages.has(page.url)) {
+                discoveredPages.set(page.url, page);
             }
-
-            if (discoveredPages.has(normalizedUrl)) continue;
-
-            const linkTitle = link.textContent?.trim() || normalizedUrl;
-            discoveredPages.set(normalizedUrl, {
-                title: linkTitle,
-                url: normalizedUrl,
-            });
         }
     }
 
