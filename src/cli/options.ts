@@ -1,13 +1,15 @@
 import {
+    DEFAULT_DESCRIPTION_COMMENT_STYLE,
     DEFAULT_DOC_URLS,
     DEFAULT_INCLUDE_DESCRIPTIONS,
     DEFAULT_NAME_CASE_METHOD,
     DEFAULT_OBJECT_BLUEPRINT,
     DEFAULT_OUTPUT_DIRECTORY_PATH,
 } from "../config/defaults.js";
-import { AppConfig, NameCaseMethod } from "../types.js";
+import { AppConfig, DescriptionCommentStyle, NameCaseMethod } from "../types.js";
 
 const CASE_METHODS: NameCaseMethod[] = ["toCamelCase", "toPascalCase", "toSnakeCase"];
+const COMMENT_STYLES: DescriptionCommentStyle[] = ["inline", "xmlSummary"];
 
 const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
     if (value === undefined) return fallback;
@@ -42,6 +44,7 @@ export const parseAppConfig = (args: string[] = process.argv.slice(2)): AppConfi
         getValueAfterFlag(args, "-d", "--include-descriptions"),
         DEFAULT_INCLUDE_DESCRIPTIONS
     );
+    const styleCandidate = getValueAfterFlag(args, "-s", "--description-style");
 
     return {
         docUrls: urls ?? [...DEFAULT_DOC_URLS],
@@ -51,6 +54,10 @@ export const parseAppConfig = (args: string[] = process.argv.slice(2)): AppConfi
             ? (caseMethodCandidate as NameCaseMethod)
             : DEFAULT_NAME_CASE_METHOD,
         includeDescriptions,
+        descriptionCommentStyle: COMMENT_STYLES.includes(styleCandidate as DescriptionCommentStyle)
+            ? (styleCandidate as DescriptionCommentStyle)
+            : DEFAULT_DESCRIPTION_COMMENT_STYLE,
         hasCustomUrls,
+        hasCustomDescriptionCommentStyle: styleCandidate !== undefined,
     };
 };

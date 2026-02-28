@@ -1,4 +1,5 @@
 export type NameCaseMethod = "toCamelCase" | "toPascalCase" | "toSnakeCase";
+export type DescriptionCommentStyle = "inline" | "xmlSummary";
 
 export interface AppConfig {
     docUrls: string[];
@@ -6,7 +7,9 @@ export interface AppConfig {
     objectBlueprint: string;
     defaultNameCaseMethod: NameCaseMethod;
     includeDescriptions: boolean;
+    descriptionCommentStyle: DescriptionCommentStyle;
     hasCustomUrls: boolean;
+    hasCustomDescriptionCommentStyle: boolean;
 }
 
 export interface PropertyDefinition {

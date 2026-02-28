@@ -61,17 +61,7 @@ export class DefinitionExtractor {
             if (!className) continue;
 
             const classCode = `public ${this.config.objectBlueprint} ${className} {\n${properties
-                .map((prop) => {
-                    const propDef = `  public ${prop.type}${prop.isOptional && prop.type !== "string" ? "?" : ""} ${
-                        prop.name
-                    } { get; set; }`;
-
-                    if (this.config.includeDescriptions && prop.description && prop.description.length > 0) {
-                        return `${propDef} // ${prop.description}`;
-                    }
-
-                    return propDef;
-                })
+                .map((prop) => this.buildPropertyDefinition(prop))
                 .join("\n")}\n}\n\n`;
 
             this.appendOutput(classCode);
@@ -80,6 +70,25 @@ export class DefinitionExtractor {
 
         fs.writeFileSync(outputFilePath, this.output);
         return { outputFilePath, classCount };
+    }
+
+    private buildPropertyDefinition(prop: PropertyDefinition): string {
+        const propDef = `  public ${prop.type}${prop.isOptional && prop.type !== "string" ? "?" : ""} ${prop.name} { get; set; }`;
+
+        if (!this.config.includeDescriptions || !prop.description || prop.description.length === 0) {
+            return propDef;
+        }
+
+        if (this.config.descriptionCommentStyle === "xmlSummary") {
+            const escapedDescription = this.escapeXmlComment(prop.description);
+            return `  /// <summary>\n  /// ${escapedDescription}\n  /// </summary>\n${propDef}`;
+        }
+
+        return `${propDef} // ${prop.description}`;
+    }
+
+    private escapeXmlComment(value: string): string {
+        return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     private appendOutput = (code: string): void => {

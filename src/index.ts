@@ -5,6 +5,7 @@ import { createSpinner, logInfo, logSuccess, logWarn, printBanner } from "./cli/
 import { KNOWN_DOC_URLS } from "./config/defaults.js";
 import { discoverDocumentationPages } from "./core/discovery.js";
 import { DefinitionExtractor } from "./core/extractor.js";
+import { selectDescriptionCommentStyle } from "./cli/comment-style.js";
 
 const app = async (): Promise<void> => {
     printBanner();
@@ -30,6 +31,10 @@ const app = async (): Promise<void> => {
             discoverySpinner.fail("Unable to crawl documentation pages, using known URLs");
             logWarn(error instanceof Error ? error.message : "Unknown discovery error");
         }
+
+        if (!config.hasCustomDescriptionCommentStyle) {
+            config.descriptionCommentStyle = await selectDescriptionCommentStyle();
+        }
     }
 
     const extractor = new DefinitionExtractor(config);
@@ -37,6 +42,7 @@ const app = async (): Promise<void> => {
 
     logInfo(`Target URL count: ${config.docUrls.length}`);
     logInfo(`Output directory: ${config.outputDirectoryPath}`);
+    logInfo(`Description style: ${config.descriptionCommentStyle}`);
 
     for (const docUrl of config.docUrls) {
         const spinner = createSpinner(`Fetching ${docUrl}`);
