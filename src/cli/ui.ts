@@ -6,6 +6,10 @@ const color = {
     bold: (text: string) => `\x1b[1m${text}\x1b[0m`,
 };
 
+export const formatSelectableDocPage = (title: string, url: string): string => {
+    return `${title} [${url}]`;
+};
+
 export const printBanner = (): void => {
     const title = "EPIAS Docs Definition Extractor";
     const line = "═".repeat(title.length + 4);

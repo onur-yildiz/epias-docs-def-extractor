@@ -34,6 +34,7 @@ const getValuesAfterFlag = (args: string[], ...flags: string[]): string[] | unde
 
 export const parseAppConfig = (args: string[] = process.argv.slice(2)): AppConfig => {
     const urls = getValuesAfterFlag(args, "-u", "--url");
+    const hasCustomUrls = Boolean(urls && urls.length > 0);
     const outputDirectoryPath = getValueAfterFlag(args, "-o", "--output") ?? DEFAULT_OUTPUT_DIRECTORY_PATH;
     const objectBlueprint = getValueAfterFlag(args, "-b", "--blueprint") ?? DEFAULT_OBJECT_BLUEPRINT;
     const caseMethodCandidate = getValueAfterFlag(args, "-c", "--case");
@@ -50,5 +51,6 @@ export const parseAppConfig = (args: string[] = process.argv.slice(2)): AppConfi
             ? (caseMethodCandidate as NameCaseMethod)
             : DEFAULT_NAME_CASE_METHOD,
         includeDescriptions,
+        hasCustomUrls,
     };
 };
