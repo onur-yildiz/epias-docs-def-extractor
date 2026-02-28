@@ -1,8 +1,8 @@
-import fetch from "node-fetch";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import { AppConfig, PropertyDefinition } from "../types.js";
 import { TypeMapper } from "./type-mapper.js";
+import { fetchWithTimeout } from "./http.js";
 
 export class DefinitionExtractor {
     private output = "";
@@ -19,7 +19,7 @@ export class DefinitionExtractor {
     public async convertDocDefinitions(targetUrl: string): Promise<{ outputFilePath: string; classCount: number }> {
         const outputFilePath = `${this.config.outputDirectoryPath}/output_${new URL(targetUrl).hostname}_${new Date().getTime()}.cs`;
 
-        const response = await fetch(targetUrl);
+        const response = await fetchWithTimeout(targetUrl);
         const htmlString = await response.text();
 
         const dom = new JSDOM(htmlString);
@@ -61,17 +61,7 @@ export class DefinitionExtractor {
             if (!className) continue;
 
             const classCode = `public ${this.config.objectBlueprint} ${className} {\n${properties
-                .map((prop) => {
-                    const propDef = `  public ${prop.type}${prop.isOptional && prop.type !== "string" ? "?" : ""} ${
-                        prop.name
-                    } { get; set; }`;
-
-                    if (this.config.includeDescriptions && prop.description && prop.description.length > 0) {
-                        return `${propDef} // ${prop.description}`;
-                    }
-
-                    return propDef;
-                })
+                .map((prop) => this.buildPropertyDefinition(prop))
                 .join("\n")}\n}\n\n`;
 
             this.appendOutput(classCode);
@@ -80,6 +70,25 @@ export class DefinitionExtractor {
 
         fs.writeFileSync(outputFilePath, this.output);
         return { outputFilePath, classCount };
+    }
+
+    private buildPropertyDefinition(prop: PropertyDefinition): string {
+        const propDef = `  public ${prop.type}${prop.isOptional && prop.type !== "string" ? "?" : ""} ${prop.name} { get; set; }`;
+
+        if (!this.config.includeDescriptions || !prop.description || prop.description.length === 0) {
+            return propDef;
+        }
+
+        if (this.config.descriptionCommentStyle === "xmlSummary") {
+            const escapedDescription = this.escapeXmlComment(prop.description);
+            return `  /// <summary>\n  /// ${escapedDescription}\n  /// </summary>\n${propDef}`;
+        }
+
+        return `${propDef} // ${prop.description}`;
+    }
+
+    private escapeXmlComment(value: string): string {
+        return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     private appendOutput = (code: string): void => {

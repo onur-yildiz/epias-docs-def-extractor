@@ -26,7 +26,8 @@ Options:
 - `-o, --output <dir>`: Output directory path. Default: `outputs`
 - `-b, --blueprint <type>`: C# type blueprint (`class`, `struct`, etc.). Default: `class`
 - `-c, --case <method>`: Property name case method (`toCamelCase`, `toPascalCase`, `toSnakeCase`). Default: `toCamelCase`
-- `-d, --include-descriptions <boolean>`: Include inline comments from descriptions. Default: `true`
+- `-d, --include-descriptions <boolean>`: Include comments from descriptions. Default: `true`
+- `-s, --description-style <style>`: Description comment style (`inline` or `xmlSummary`). Default: `inline`
 
 ### Interactive mode
 
@@ -45,5 +46,6 @@ node dist/index.js \
   --output outputs \
   --blueprint class \
   --case toPascalCase \
-  --include-descriptions true
+  --include-descriptions true \
+  --description-style xmlSummary
 ```

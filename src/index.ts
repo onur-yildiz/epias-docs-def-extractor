@@ -5,6 +5,7 @@ import { createSpinner, logInfo, logSuccess, logWarn, printBanner } from "./cli/
 import { KNOWN_DOC_URLS } from "./config/defaults.js";
 import { discoverDocumentationPages } from "./core/discovery.js";
 import { DefinitionExtractor } from "./core/extractor.js";
+import { selectDescriptionCommentStyle } from "./cli/comment-style.js";
 
 const app = async (): Promise<void> => {
     printBanner();
@@ -15,16 +16,24 @@ const app = async (): Promise<void> => {
         const discoverySpinner = createSpinner("Crawling EPIAS documentation pages");
 
         try {
-            const discoveredPages = await discoverDocumentationPages([...KNOWN_DOC_URLS]);
-            discoverySpinner.stop(`Discovered ${discoveredPages.length} documentation page(s)`);
+            const { pages, failedSeedUrls } = await discoverDocumentationPages([...KNOWN_DOC_URLS]);
+            discoverySpinner.stop(`Discovered ${pages.length} documentation page(s)`);
 
-            const selectedUrls = await selectDocumentationPages(discoveredPages);
+            if (failedSeedUrls.length > 0) {
+                logWarn(`Crawl errors on ${failedSeedUrls.length} seed URL(s); continuing with available pages.`);
+            }
+
+            const selectedUrls = await selectDocumentationPages(pages);
             config.docUrls = selectedUrls;
 
             logInfo(`Selected URL count: ${config.docUrls.length}`);
         } catch (error) {
             discoverySpinner.fail("Unable to crawl documentation pages, using known URLs");
             logWarn(error instanceof Error ? error.message : "Unknown discovery error");
+        }
+
+        if (!config.hasCustomDescriptionCommentStyle) {
+            config.descriptionCommentStyle = await selectDescriptionCommentStyle();
         }
     }
 
@@ -33,6 +42,7 @@ const app = async (): Promise<void> => {
 
     logInfo(`Target URL count: ${config.docUrls.length}`);
     logInfo(`Output directory: ${config.outputDirectoryPath}`);
+    logInfo(`Description style: ${config.descriptionCommentStyle}`);
 
     for (const docUrl of config.docUrls) {
         const spinner = createSpinner(`Fetching ${docUrl}`);
