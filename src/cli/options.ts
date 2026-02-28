@@ -59,5 +59,6 @@ export const parseAppConfig = (args: string[] = process.argv.slice(2)): AppConfi
             : DEFAULT_DESCRIPTION_COMMENT_STYLE,
         hasCustomUrls,
         hasCustomDescriptionCommentStyle: styleCandidate !== undefined,
+        hasCustomNameCaseMethod: caseMethodCandidate !== undefined,
     };
 };

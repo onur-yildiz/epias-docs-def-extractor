@@ -3,7 +3,7 @@ import { DescriptionCommentStyle } from "../types.js";
 
 export const selectDescriptionCommentStyle = async (): Promise<DescriptionCommentStyle> => {
     return select({
-        message: "Description comment style",
+        message: "📝 Description comment style",
         choices: [
             {
                 name: "Inline comments (property // description)",

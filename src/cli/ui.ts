@@ -3,19 +3,29 @@ const color = {
     green: (text: string) => `\x1b[32m${text}\x1b[0m`,
     yellow: (text: string) => `\x1b[33m${text}\x1b[0m`,
     blue: (text: string) => `\x1b[34m${text}\x1b[0m`,
+    magenta: (text: string) => `\x1b[35m${text}\x1b[0m`,
+    dim: (text: string) => `\x1b[2m${text}\x1b[0m`,
     bold: (text: string) => `\x1b[1m${text}\x1b[0m`,
 };
 
 export const formatSelectableDocPage = (title: string, url: string): string => {
-    return `${title} [${url}]`;
+    return `${title} ${color.dim(`[${url}]`)}`;
 };
 
 export const printBanner = (): void => {
     const title = "EPIAS Docs Definition Extractor";
     const line = "═".repeat(title.length + 4);
+    console.log();
     console.log(color.cyan(`╔${line}╗`));
     console.log(color.cyan(`║  ${color.bold(title)}  ║`));
     console.log(color.cyan(`╚${line}╝`));
+    console.log(color.dim("  ✨ Interactive extraction wizard"));
+    console.log();
+};
+
+export const printSection = (title: string): void => {
+    console.log();
+    console.log(color.magenta(color.bold(`✦ ${title}`)));
 };
 
 export const createSpinner = (text: string) => {

@@ -25,13 +25,13 @@ Options:
 - `-u, --url <url...>`: One or more target documentation URLs. If not passed, the CLI crawls known EPIAS docs URLs and opens a multi-select prompt (`Title [url]`).
 - `-o, --output <dir>`: Output directory path. Default: `outputs`
 - `-b, --blueprint <type>`: C# type blueprint (`class`, `struct`, etc.). Default: `class`
-- `-c, --case <method>`: Property name case method (`toCamelCase`, `toPascalCase`, `toSnakeCase`). Default: `toCamelCase`
+- `-c, --case <method>`: Property name case method (`toCamelCase`, `toPascalCase`, `toSnakeCase`). Default: `toPascalCase`
 - `-d, --include-descriptions <boolean>`: Include comments from descriptions. Default: `true`
 - `-s, --description-style <style>`: Description comment style (`inline` or `xmlSummary`). Default: `inline`
 
 ### Interactive mode
 
-Run without `--url` to crawl and choose docs from terminal UI:
+Run without `--url` to crawl and choose docs from terminal UI. In interactive mode, the CLI also asks for description style and property naming case (default: PascalCase):
 
 ```bash
 npm start

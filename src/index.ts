@@ -1,11 +1,12 @@
 import "./extensions/string.extensions.js";
 import { parseAppConfig } from "./cli/options.js";
 import { selectDocumentationPages } from "./cli/doc-selection.js";
-import { createSpinner, logInfo, logSuccess, logWarn, printBanner } from "./cli/ui.js";
+import { createSpinner, logInfo, logSuccess, logWarn, printBanner, printSection } from "./cli/ui.js";
 import { KNOWN_DOC_URLS } from "./config/defaults.js";
 import { discoverDocumentationPages } from "./core/discovery.js";
 import { DefinitionExtractor } from "./core/extractor.js";
 import { selectDescriptionCommentStyle } from "./cli/comment-style.js";
+import { selectNameCaseMethod } from "./cli/case-method.js";
 
 const app = async (): Promise<void> => {
     printBanner();
@@ -13,6 +14,7 @@ const app = async (): Promise<void> => {
     const config = parseAppConfig();
 
     if (!config.hasCustomUrls) {
+        printSection("Discovery");
         const discoverySpinner = createSpinner("Crawling EPIAS documentation pages");
 
         try {
@@ -23,6 +25,7 @@ const app = async (): Promise<void> => {
                 logWarn(`Crawl errors on ${failedSeedUrls.length} seed URL(s); continuing with available pages.`);
             }
 
+            printSection("Selection");
             const selectedUrls = await selectDocumentationPages(pages);
             config.docUrls = selectedUrls;
 
@@ -35,14 +38,23 @@ const app = async (): Promise<void> => {
         if (!config.hasCustomDescriptionCommentStyle) {
             config.descriptionCommentStyle = await selectDescriptionCommentStyle();
         }
+
+        if (!config.hasCustomNameCaseMethod) {
+            config.defaultNameCaseMethod = await selectNameCaseMethod();
+        }
     }
+
+    printSection("Extraction Plan");
 
     const extractor = new DefinitionExtractor(config);
     extractor.ensureOutputDirectory();
 
     logInfo(`Target URL count: ${config.docUrls.length}`);
     logInfo(`Output directory: ${config.outputDirectoryPath}`);
+    logInfo(`Name casing: ${config.defaultNameCaseMethod}`);
     logInfo(`Description style: ${config.descriptionCommentStyle}`);
+
+    printSection("Processing");
 
     for (const docUrl of config.docUrls) {
         const spinner = createSpinner(`Fetching ${docUrl}`);

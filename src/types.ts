@@ -10,6 +10,7 @@ export interface AppConfig {
     descriptionCommentStyle: DescriptionCommentStyle;
     hasCustomUrls: boolean;
     hasCustomDescriptionCommentStyle: boolean;
+    hasCustomNameCaseMethod: boolean;
 }
 
 export interface PropertyDefinition {
