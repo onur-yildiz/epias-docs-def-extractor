@@ -6,7 +6,7 @@ export const KNOWN_DOC_URLS = [
 
 export const DEFAULT_OUTPUT_DIRECTORY_PATH = "outputs";
 export const DEFAULT_OBJECT_BLUEPRINT = "class";
-export const DEFAULT_NAME_CASE_METHOD = "toCamelCase" as const;
+export const DEFAULT_NAME_CASE_METHOD = "toPascalCase" as const;
 export const DEFAULT_INCLUDE_DESCRIPTIONS = true;
 export const DEFAULT_DESCRIPTION_COMMENT_STYLE = "inline" as const;
 

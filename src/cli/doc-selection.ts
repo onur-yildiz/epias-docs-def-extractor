@@ -16,7 +16,7 @@ const askForAdditionalUrls = async (): Promise<string[]> => {
 
     while (
         await confirm({
-            message: "Add another documentation URL?",
+            message: "➕ Add another documentation URL?",
             default: false,
         })
     ) {
@@ -42,7 +42,7 @@ export const selectDocumentationPages = async (pages: DiscoveredDocPage[]): Prom
         pages.length === 0
             ? []
             : await checkbox({
-                  message: "Select documentation pages to extract",
+                  message: "📚 Select documentation pages to extract",
                   choices: pages.map((page) => ({
                       name: formatSelectableDocPage(page.title, page.url),
                       value: page.url,

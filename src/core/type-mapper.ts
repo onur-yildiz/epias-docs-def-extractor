@@ -52,7 +52,8 @@ export class TypeMapper {
         if (enumTypeMatch && enumTypeMatch.length > 0) {
             const enums = enumTypeMatch[1].split(",").map((s) => s.trim());
             const enumName = propName.capitalizeFirstLetter();
-            const classCode = `public enum ${enumName} {\n${enums.map((e) => `${e},`).join("\n")}\n}\n\n`;
+            const enumBody = enums.map((e) => `    ${e},`).join("\n");
+            const classCode = `public enum ${enumName}\n{\n${enumBody}\n}`;
 
             appendOutput(classCode);
             return enumName;
