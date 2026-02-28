@@ -6,6 +6,11 @@ export interface DiscoveredDocPage {
     url: string;
 }
 
+export interface DocumentationDiscoveryResult {
+    pages: DiscoveredDocPage[];
+    failedSeedUrls: string[];
+}
+
 const normalizeUrl = (rawUrl: string, baseUrl: string): string | null => {
     try {
         return new URL(rawUrl, baseUrl).toString();
@@ -59,20 +64,27 @@ const discoverFromSeedUrl = async (seedUrl: string): Promise<DiscoveredDocPage[]
     return [...pages.values()];
 };
 
-export const discoverDocumentationPages = async (seedUrls: string[]): Promise<DiscoveredDocPage[]> => {
+export const discoverDocumentationPages = async (seedUrls: string[]): Promise<DocumentationDiscoveryResult> => {
     const settledResults = await Promise.allSettled(seedUrls.map((seedUrl) => discoverFromSeedUrl(seedUrl)));
 
     const discoveredPages = new Map<string, DiscoveredDocPage>();
+    const failedSeedUrls: string[] = [];
 
-    for (const result of settledResults) {
-        if (result.status !== "fulfilled") continue;
+    settledResults.forEach((result, index) => {
+        if (result.status !== "fulfilled") {
+            failedSeedUrls.push(seedUrls[index]);
+            return;
+        }
 
         for (const page of result.value) {
             if (!discoveredPages.has(page.url)) {
                 discoveredPages.set(page.url, page);
             }
         }
-    }
+    });
 
-    return [...discoveredPages.values()].sort((a, b) => a.title.localeCompare(b.title));
+    return {
+        pages: [...discoveredPages.values()].sort((a, b) => a.title.localeCompare(b.title)),
+        failedSeedUrls,
+    };
 };

@@ -15,10 +15,14 @@ const app = async (): Promise<void> => {
         const discoverySpinner = createSpinner("Crawling EPIAS documentation pages");
 
         try {
-            const discoveredPages = await discoverDocumentationPages([...KNOWN_DOC_URLS]);
-            discoverySpinner.stop(`Discovered ${discoveredPages.length} documentation page(s)`);
+            const { pages, failedSeedUrls } = await discoverDocumentationPages([...KNOWN_DOC_URLS]);
+            discoverySpinner.stop(`Discovered ${pages.length} documentation page(s)`);
 
-            const selectedUrls = await selectDocumentationPages(discoveredPages);
+            if (failedSeedUrls.length > 0) {
+                logWarn(`Crawl errors on ${failedSeedUrls.length} seed URL(s); continuing with available pages.`);
+            }
+
+            const selectedUrls = await selectDocumentationPages(pages);
             config.docUrls = selectedUrls;
 
             logInfo(`Selected URL count: ${config.docUrls.length}`);
