@@ -1,10 +1,11 @@
 {
   "name": "epias-docs-class-extractor",
   "version": "1.0.0",
-  "description": "",
+  "description": "CLI tool to extract definitions from EPIAS docs and generate C# model files",
   "main": "dist/index.js",
   "scripts": {
-    "start": "tsc && node dist/index.js",
+    "build": "node ./node_modules/typescript/bin/tsc",
+    "start": "npm run build && node dist/index.js",
     "watch": "tsc-watch --onSuccess \"node dist/index.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
