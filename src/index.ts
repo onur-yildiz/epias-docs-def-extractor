@@ -1,12 +1,33 @@
 import "./extensions/string.extensions.js";
 import { parseAppConfig } from "./cli/options.js";
+import { selectDocumentationPages } from "./cli/doc-selection.js";
 import { createSpinner, logInfo, logSuccess, logWarn, printBanner } from "./cli/ui.js";
+import { KNOWN_DOC_URLS } from "./config/defaults.js";
+import { discoverDocumentationPages } from "./core/discovery.js";
 import { DefinitionExtractor } from "./core/extractor.js";
 
 const app = async (): Promise<void> => {
     printBanner();
 
     const config = parseAppConfig();
+
+    if (!config.hasCustomUrls) {
+        const discoverySpinner = createSpinner("Crawling EPIAS documentation pages");
+
+        try {
+            const discoveredPages = await discoverDocumentationPages([...KNOWN_DOC_URLS]);
+            discoverySpinner.stop(`Discovered ${discoveredPages.length} documentation page(s)`);
+
+            const selectedUrls = await selectDocumentationPages(discoveredPages);
+            config.docUrls = selectedUrls;
+
+            logInfo(`Selected URL count: ${config.docUrls.length}`);
+        } catch (error) {
+            discoverySpinner.fail("Unable to crawl documentation pages, using known URLs");
+            logWarn(error instanceof Error ? error.message : "Unknown discovery error");
+        }
+    }
+
     const extractor = new DefinitionExtractor(config);
     extractor.ensureOutputDirectory();
 

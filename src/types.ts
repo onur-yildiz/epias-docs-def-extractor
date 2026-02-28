@@ -6,6 +6,7 @@ export interface AppConfig {
     objectBlueprint: string;
     defaultNameCaseMethod: NameCaseMethod;
     includeDescriptions: boolean;
+    hasCustomUrls: boolean;
 }
 
 export interface PropertyDefinition {

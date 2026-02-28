@@ -22,11 +22,19 @@ node dist/index.js [options]
 
 Options:
 
-- `-u, --url <url...>`: One or more target documentation URLs.
+- `-u, --url <url...>`: One or more target documentation URLs. If not passed, the CLI crawls known EPIAS docs URLs and opens a multi-select prompt (`Title [url]`).
 - `-o, --output <dir>`: Output directory path. Default: `outputs`
 - `-b, --blueprint <type>`: C# type blueprint (`class`, `struct`, etc.). Default: `class`
 - `-c, --case <method>`: Property name case method (`toCamelCase`, `toPascalCase`, `toSnakeCase`). Default: `toCamelCase`
 - `-d, --include-descriptions <boolean>`: Include inline comments from descriptions. Default: `true`
+
+### Interactive mode
+
+Run without `--url` to crawl and choose docs from terminal UI:
+
+```bash
+npm start
+```
 
 ### Example
 
