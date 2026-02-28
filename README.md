@@ -1,11 +1,41 @@
 # epias-docs-def-extractor
-Extracts definitions from EPIAS Docs as C# classes
 
-- In `index.ts` add your epias documentation url into docUrls. (To be interactive cmd app in the future hopefully. If I have the time.)
-- Run `npm start`
+A reusable CLI application that extracts object definitions from EPIAS technical documentation pages and generates C# model files.
 
-## Parameters (in `index.ts`)\
-`DEFAULT_NAME_CASE_METHOD` - __toCamelCase__, __toPascalCase__, __toSnakeCase__\
-`INCLUDE_DESCRIPTIONS` - boolean. include desc as comments (To be doc summary in the future hopefully)\
-`OUTPUT_DIRECTORY_PATH` - output path\
-`OBJECT_BLUEPRINT` - class, struct etc.
+## Install
+
+```bash
+npm install
+```
+
+## Run
+
+```bash
+npm start
+```
+
+## CLI usage
+
+```bash
+node dist/index.js [options]
+```
+
+Options:
+
+- `-u, --url <url...>`: One or more target documentation URLs.
+- `-o, --output <dir>`: Output directory path. Default: `outputs`
+- `-b, --blueprint <type>`: C# type blueprint (`class`, `struct`, etc.). Default: `class`
+- `-c, --case <method>`: Property name case method (`toCamelCase`, `toPascalCase`, `toSnakeCase`). Default: `toCamelCase`
+- `-d, --include-descriptions <boolean>`: Include inline comments from descriptions. Default: `true`
+
+### Example
+
+```bash
+npm run build
+node dist/index.js \
+  --url https://gunici-prp.epias.com.tr/gunici-service/technical/tr/index.html \
+  --output outputs \
+  --blueprint class \
+  --case toPascalCase \
+  --include-descriptions true
+```

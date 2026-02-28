@@ -1,11 +1,14 @@
 {
-    "compilerOptions": {
-      "module": "ESNext",
-      "esModuleInterop": true,
-      "target": "es6",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "outDir": "dist"
-    },
-    "lib": ["es2015"]
+  "compilerOptions": {
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "target": "es2019",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": false
+  },
+  "include": ["src/**/*.ts"],
+  "lib": ["es2019"]
 }
