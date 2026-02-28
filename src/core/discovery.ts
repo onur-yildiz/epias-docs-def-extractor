@@ -1,5 +1,5 @@
-import fetch from "node-fetch";
 import { JSDOM } from "jsdom";
+import { fetchWithTimeout } from "./http.js";
 
 export interface DiscoveredDocPage {
     title: string;
@@ -26,7 +26,14 @@ export const discoverDocumentationPages = async (seedUrls: string[]): Promise<Di
     const discoveredPages = new Map<string, DiscoveredDocPage>();
 
     for (const seedUrl of seedUrls) {
-        const response = await fetch(seedUrl);
+        let response;
+
+        try {
+            response = await fetchWithTimeout(seedUrl);
+        } catch {
+            continue;
+        }
+
         if (!response.ok) continue;
 
         const htmlString = await response.text();

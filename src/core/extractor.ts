@@ -1,8 +1,8 @@
-import fetch from "node-fetch";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import { AppConfig, PropertyDefinition } from "../types.js";
 import { TypeMapper } from "./type-mapper.js";
+import { fetchWithTimeout } from "./http.js";
 
 export class DefinitionExtractor {
     private output = "";
@@ -19,7 +19,7 @@ export class DefinitionExtractor {
     public async convertDocDefinitions(targetUrl: string): Promise<{ outputFilePath: string; classCount: number }> {
         const outputFilePath = `${this.config.outputDirectoryPath}/output_${new URL(targetUrl).hostname}_${new Date().getTime()}.cs`;
 
-        const response = await fetch(targetUrl);
+        const response = await fetchWithTimeout(targetUrl);
         const htmlString = await response.text();
 
         const dom = new JSDOM(htmlString);
